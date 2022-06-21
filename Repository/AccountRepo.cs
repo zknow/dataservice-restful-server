@@ -12,7 +12,7 @@ public class AccountRepo
 {
     public MsSqlEngine db => Server.DBMgr.Sql;
 
-    public int RespCode { get; set; } = Core.Code.Success;
+    public int RespCode { get; set; } = Code.Success;
 
     public IQueryable<Account> GetAll()
     {

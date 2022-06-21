@@ -53,7 +53,8 @@ public class Startup
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        Console.WriteLine("env.IsDevelopment()", env.IsDevelopment());
+        Console.WriteLine($"EnvironmentName : {env.EnvironmentName}");
+
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();

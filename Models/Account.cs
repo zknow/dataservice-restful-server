@@ -3,7 +3,7 @@ using LinqToDB.Mapping;
 
 namespace HttpDataServer.Models;
 
-[Table(Name = nameof(Models.Account))]
+[Table(Name = nameof(Account))]
 public class Account
 {
     [PrimaryKey, NotNull]

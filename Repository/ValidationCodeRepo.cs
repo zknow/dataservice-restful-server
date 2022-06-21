@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using HttpDataServer.Core;
 using StackExchange.Redis;
 
 namespace HttpDataServer.Repository;
@@ -8,7 +9,7 @@ public class ValidationCodeRepo
 {
     public IDatabase db => Server.DBMgr.Redis.DB;
 
-    public int RespCode { get; set; } = Core.Code.Success;
+    public int RespCode { get; set; } = Code.Success;
 
     public readonly double defaultExpireMinutes = 10;
 
