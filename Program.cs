@@ -1,4 +1,3 @@
-using System;
 using HttpDataServer.Database;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
