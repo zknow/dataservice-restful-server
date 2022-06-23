@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace HttpDataServer.Dtos.Account;
 
 public class AccountUpdateDto
@@ -6,8 +8,10 @@ public class AccountUpdateDto
 
     public string Password { get; set; }
 
+    [Phone]
     public string Phone { get; set; }
 
+    [EmailAddress]
     public string Email { get; set; }
 
     public bool? IsPhoneVerified { get; set; }

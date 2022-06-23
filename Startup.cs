@@ -10,34 +10,37 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 namespace HttpDataServer;
 
 public class Startup
 {
+    public IConfiguration Configuration { get; }
+
     public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
     }
-
-    public IConfiguration Configuration { get; }
 
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddControllers();
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "HttpDataServer", Version = "v1" }); });
-        services.AddHostedService<HostedService>();
         services.AddControllers().ConfigureApiBehaviorOptions(opt => { opt.SuppressMapClientErrors = true; });
         services.AddControllers().AddNewtonsoftJson();
 
         services.AddApiVersioning(options =>
-        {
-            options.DefaultApiVersion = new ApiVersion(1, 0);
-            options.AssumeDefaultVersionWhenUnspecified = true;
-            options.ReportApiVersions = true;
-            options.ApiVersionReader = new HeaderApiVersionReader("X-Api-Version");
-        });
+           {
+               options.DefaultApiVersion = new ApiVersion(1, 0);
+               options.AssumeDefaultVersionWhenUnspecified = true;
+               options.ReportApiVersions = true;
+               options.ApiVersionReader = new HeaderApiVersionReader("X-Api-Version");
+           });
+
+        //將執行關閉較耗時的 service 最後註冊，中止時會優先執行
+        services.AddHostedService<HostedService>();
 
         SetInjectionToController(services);
     }
@@ -53,8 +56,6 @@ public class Startup
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        Console.WriteLine($"EnvironmentName : {env.EnvironmentName}");
-
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
@@ -76,6 +77,8 @@ public class Startup
     {
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            Log.Information($"Environment : {env}");
             return Task.CompletedTask;
         }
 
@@ -83,11 +86,12 @@ public class Startup
         {
             try
             {
-                Server.DBMgr.Dispose();
+                Server.Dispose();
+                Log.Information("Server Dispose Success!");
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Log.Warning(ex, "Server Dispose Failed!");
             }
 
             return Task.CompletedTask;

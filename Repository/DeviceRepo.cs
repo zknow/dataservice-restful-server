@@ -9,7 +9,7 @@ namespace HttpDataServer.Repository;
 
 public class DeviceRepo
 {
-    public MsSqlEngine db => Server.DBMgr.Sql;
+    public MsSqlEngine db => Server.DBManager.Sql;
     public int RespCode { get; set; } = Code.Success;
 
     public bool Update(string firebaseCode, DeviceUpdateDto deviceInfo)

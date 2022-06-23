@@ -10,7 +10,7 @@ namespace HttpDataServer.Repository;
 
 public class AccountRepo
 {
-    public MsSqlEngine db => Server.DBMgr.Sql;
+    public MsSqlEngine db => Server.DBManager.Sql;
 
     public int RespCode { get; set; } = Code.Success;
 

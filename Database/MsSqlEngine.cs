@@ -19,8 +19,8 @@ namespace HttpDataServer.Database
 
         public void CreateTabls()
         {
-            try { this.CreateTable<Account>(); } catch (Exception e) { Console.WriteLine(e.Message); }
-            try { this.CreateTable<Device>(); } catch (Exception e) { Console.WriteLine(e.Message); }
+            try { this.CreateTable<Account>(); } catch (Exception) { }
+            try { this.CreateTable<Device>(); } catch (Exception) { }
         }
     }
 }

@@ -1,13 +1,14 @@
 using System;
 using System.Linq;
 using HttpDataServer.Core;
+using HttpDataServer.Database;
 using StackExchange.Redis;
 
 namespace HttpDataServer.Repository;
 
 public class ValidationCodeRepo
 {
-    public IDatabase db => Server.DBMgr.Redis.DB;
+    public IDatabase db => Server.DBManager.Redis.DB;
 
     public int RespCode { get; set; } = Code.Success;
 
