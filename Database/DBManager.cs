@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using Serilog;
 
 namespace HttpDataServer.Database
@@ -19,6 +20,11 @@ namespace HttpDataServer.Database
             try
             {
                 Sql = new MsSqlEngine(Config.GetMsSqlConnectionString());
+                if (Sql.Connection.State != ConnectionState.Open)
+                {
+                    Log.Error($"SQL 連接失敗, State : {(System.Data.ConnectionState)Sql.Connection.State}");
+                    Environment.Exit(1);
+                }
                 Sql.CreateTabls();
             }
             catch (Exception ex)
