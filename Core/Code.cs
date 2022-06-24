@@ -12,7 +12,8 @@ public partial class Code
 
     // Account
     public const int AccountNotFount = 1000;
-    public const int AccountUpdateFailed = 1001;
+    public const int AccountCreateFailed = 1001;
+    public const int AccountUpdateFailed = 1002;
 
     // Device
     public const int DeviceNotFound = 2000;

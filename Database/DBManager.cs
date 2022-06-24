@@ -22,14 +22,14 @@ namespace HttpDataServer.Database
                 Sql = new MsSqlEngine(Config.GetMsSqlConnectionString());
                 if (Sql.Connection.State != ConnectionState.Open)
                 {
-                    Log.Error($"SQL 連接失敗, State : {(System.Data.ConnectionState)Sql.Connection.State}");
+                    Log.Fatal($"SQL 連接失敗, State : {(System.Data.ConnectionState)Sql.Connection.State}");
                     Environment.Exit(1);
                 }
                 Sql.CreateTabls();
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "SQL 初始化失敗");
+                Log.Fatal(ex, "SQL 初始化失敗");
                 Environment.Exit(1);
             }
         }
@@ -44,7 +44,7 @@ namespace HttpDataServer.Database
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Redis 初始化失敗");
+                Log.Fatal(ex, "Redis 初始化失敗");
                 Environment.Exit(1);
             }
         }

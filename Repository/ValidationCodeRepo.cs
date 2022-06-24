@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using HttpDataServer.Core;
-using HttpDataServer.Database;
+using Serilog;
 using StackExchange.Redis;
 
 namespace HttpDataServer.Repository;
@@ -29,8 +29,8 @@ public class ValidationCodeRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
         }
         return false;
     }
@@ -68,8 +68,8 @@ public class ValidationCodeRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
             return false;
         }
     }

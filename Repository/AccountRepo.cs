@@ -5,6 +5,7 @@ using HttpDataServer.Database;
 using HttpDataServer.Dtos.Account;
 using HttpDataServer.Models;
 using LinqToDB;
+using Serilog;
 
 namespace HttpDataServer.Repository;
 
@@ -23,7 +24,7 @@ public class AccountRepo
         catch (System.Exception ex)
         {
             RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            Log.Error(ex, Code.Message(RespCode));
             return null;
         }
     }
@@ -35,14 +36,14 @@ public class AccountRepo
             var account = db.Accounts.FirstOrDefault();
             if (account == null)
             {
-                RespCode = Core.Code.AccountNotFount;
+                RespCode = Code.AccountNotFount;
             }
             return account;
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
             return null;
         }
     }
@@ -61,14 +62,14 @@ public class AccountRepo
                         return true;
                     }
                 }
-                RespCode = Core.Code.DatabaseError;
+                RespCode = Code.AccountCreateFailed;
                 return false;
             }
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
             return false;
         }
     }
@@ -80,7 +81,7 @@ public class AccountRepo
             var selector = db.Accounts.Where(p => p.UID == uid).FirstOrDefault();
             if (selector == null)
             {
-                RespCode = Core.Code.AccountNotFount;
+                RespCode = Code.AccountNotFount;
                 return false;
             }
 
@@ -91,11 +92,16 @@ public class AccountRepo
             selector.IsPhoneVerified = updateData.IsPhoneVerified == null ? selector.IsPhoneVerified : updateData.IsPhoneVerified;
             selector.IsEmailVerified = updateData.IsEmailVerified == null ? selector.IsEmailVerified : updateData.IsEmailVerified;
 
-            return db.Update(selector) > 0;
+            if (db.Update(selector) <= 0)
+            {
+                RespCode = Code.AccountUpdateFailed;
+                return false;
+            }
+            return true;
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
+            RespCode = Code.DatabaseError;
             Console.WriteLine(ex.Message);
             return false;
         }
@@ -117,8 +123,8 @@ public class AccountRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
             return false;
         }
     }
@@ -130,7 +136,7 @@ public class AccountRepo
             var selector = db.Accounts.Where(p => p.UID == uid);
             if (selector.Count() == 0)
             {
-                RespCode = Core.Code.AccountNotFount;
+                RespCode = Code.AccountNotFount;
                 return false;
             }
             var updatable = selector.Set(p => p.NickName, nickName);
@@ -138,8 +144,8 @@ public class AccountRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
             return false;
         }
     }
@@ -168,7 +174,7 @@ public class AccountRepo
                 var updatable = selector.Set(p => p.Email, email);
                 if (updatable.Update() <= 0)
                 {
-                    RespCode = Core.Code.AccountUpdateFailed;
+                    RespCode = Code.AccountUpdateFailed;
                     return false;
                 }
             }
@@ -176,8 +182,8 @@ public class AccountRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
             return false;
         }
     }
@@ -197,7 +203,7 @@ public class AccountRepo
                 var updatable = selector.Set(p => p.IsPhoneVerified, isPhoneVarified);
                 if (updatable.Update() <= 0)
                 {
-                    RespCode = Core.Code.AccountUpdateFailed;
+                    RespCode = Code.AccountUpdateFailed;
                     return false;
                 }
             }
@@ -206,7 +212,7 @@ public class AccountRepo
                 var updatable = selector.Set(p => p.IsEmailVerified, isEmailVarified);
                 if (updatable.Update() <= 0)
                 {
-                    RespCode = Core.Code.AccountUpdateFailed;
+                    RespCode = Code.AccountUpdateFailed;
                     return false;
                 }
             }
@@ -214,8 +220,8 @@ public class AccountRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
             return false;
         }
     }

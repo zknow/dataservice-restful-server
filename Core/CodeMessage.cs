@@ -12,6 +12,7 @@ public partial class Code
         { UidError , "UID錯誤"},
 
         { AccountNotFount , "查無帳號"},
+        { AccountCreateFailed , "帳號新增失敗"},
         { AccountUpdateFailed , "帳號更新失敗"},
 
         { DeviceNotFound , "查無裝置"},
@@ -28,6 +29,3 @@ public partial class Code
         return MessageDict.GetValueOrDefault(code, "未定義的ErrorCode");
     }
 }
-
-
-

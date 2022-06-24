@@ -4,6 +4,7 @@ using HttpDataServer.Core;
 using HttpDataServer.Database;
 using HttpDataServer.Dtos.Account;
 using LinqToDB;
+using Serilog;
 
 namespace HttpDataServer.Repository;
 
@@ -31,7 +32,7 @@ public class DeviceRepo
 
             if (!success)
             {
-                RespCode = Core.Code.DeviceUpdateFailed;
+                RespCode = Code.DeviceUpdateFailed;
                 return false;
             }
 
@@ -39,8 +40,8 @@ public class DeviceRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
             return false;
         }
     }
@@ -52,7 +53,7 @@ public class DeviceRepo
             var selector = db.Devices.Where(p => p.FirebaseCode == firebaseCode);
             if (selector.Count() == 0)
             {
-                RespCode = Core.Code.DeviceNotFound;
+                RespCode = Code.DeviceNotFound;
                 return false;
             }
 
@@ -60,14 +61,14 @@ public class DeviceRepo
             var success = updatable.Update() > 0;
             if (!success)
             {
-                RespCode = Core.Code.DeviceUpdateFailed;
+                RespCode = Code.DeviceUpdateFailed;
             }
             return success;
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Console.WriteLine(ex.Message);
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
             return false;
         }
     }
