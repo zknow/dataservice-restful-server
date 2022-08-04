@@ -1,4 +1,3 @@
-using System;
 using HttpDataServer.Core;
 using HttpDataServer.Dtos.Account;
 using HttpDataServer.Dtos.RespDto;
@@ -19,6 +18,18 @@ public class AccountController : ControllerBase
     public AccountController(AccountRepo accountRepo)
     {
         this.accountRepo = accountRepo;
+    }
+
+    // test
+    [HttpGet("TestGetUID")]
+    public IActionResult TestGetUID()
+    {
+        lock (CacheData.UserLocker)
+        {
+            resp.Data = new { UID = CacheData.UserSN };
+            accountRepo.UserSnIncrement();
+            return Ok(resp);
+        }
     }
 
     [HttpGet]
@@ -49,14 +60,13 @@ public class AccountController : ControllerBase
     {
         lock (CacheData.UserLocker)
         {
-            long sn = CacheData.UserSN;
+            long sn = CacheData.UserSN + 1;
             Account player = data.ToPlayer(sn);
             Device device = data.ToDevice(sn);
 
             if (accountRepo.Insert(player, device))
             {
                 resp.Data = new { UID = sn };
-                accountRepo.UserSnIncrement();
             }
             resp.Code = accountRepo.RespCode;
             return Ok(resp);

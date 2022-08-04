@@ -1,3 +1,4 @@
+using System.Threading;
 using HttpDataServer.Database;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +17,9 @@ public class Server
 
         logrotator = new Logrotator();
         DBManager = new DBManager();
+
+        // 防止Redis短時間忙碌造成Crash
+        ThreadPool.SetMinThreads(200, 200);
 
         CreateHostBuilder(args).Build().Run();
     }

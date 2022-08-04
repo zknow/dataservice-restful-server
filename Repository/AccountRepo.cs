@@ -19,20 +19,19 @@ public class AccountRepo
 
     public AccountRepo()
     {
-        if (CacheData.UserSN == -1)
+        try
         {
-            CacheData.UserSN = (long)cache.HashGet("UserData", "SN");
-            // sn == 0 代表Redis沒初始化SN過，設定為１開始
-            if (CacheData.UserSN == 0)
+            if (CacheData.UserSN == -1)
             {
-                UserSnIncrement();
+                CacheData.UserSN = (long)cache.HashGet("UserData", "SN");
             }
         }
-    }
-
-    public void UserSnIncrement()
-    {
-        CacheData.UserSN = cache.HashIncrement("UserData", "SN");
+        catch (System.Exception ex)
+        {
+            CacheData.UserSN = -1;
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
+        }
     }
 
     public IQueryable<Account> GetAll()
@@ -62,8 +61,7 @@ public class AccountRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            Log.Error(ex, Code.Message(Code.DatabaseError));
             return null;
         }
     }
@@ -72,14 +70,23 @@ public class AccountRepo
     {
         try
         {
+            if (CacheData.UserSN == -1)
+            {
+                RespCode = Code.AccountCreateFailed;
+                return false;
+            }
+
             using (var tran = db.BeginTransaction())
             {
                 if (db.Insert(player) > 0)
                 {
                     if (db.Insert(device) > 0)
                     {
-                        tran.Commit();
-                        return true;
+                        if (UserSnIncrement())
+                        {
+                            tran.Commit();
+                            return true;
+                        }
                     }
                 }
                 RespCode = Code.AccountCreateFailed;
@@ -126,7 +133,6 @@ public class AccountRepo
             return false;
         }
     }
-
 
     public bool UpdatePassword(long uid, string password)
     {
@@ -236,6 +242,21 @@ public class AccountRepo
                     return false;
                 }
             }
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            RespCode = Code.DatabaseError;
+            Log.Error(ex, Code.Message(RespCode));
+            return false;
+        }
+    }
+
+    public bool UserSnIncrement()
+    {
+        try
+        {
+            CacheData.UserSN = cache.HashIncrement("UserData", "SN");
             return true;
         }
         catch (System.Exception ex)
