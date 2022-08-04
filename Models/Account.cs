@@ -7,7 +7,7 @@ namespace HttpDataServer.Models;
 public class Account
 {
     [PrimaryKey, NotNull]
-    public Guid UID { get; set; }
+    public long UID { get; set; }
 
     [Column, Nullable]
     public string NickName { get; set; }

@@ -10,7 +10,7 @@ public class Device
     public string FirebaseCode { get; set; }
 
     [Column, NotNull]
-    public Guid UID { get; set; }
+    public long UID { get; set; }
 
     [Column, Nullable]
     public string DeviceName { get; set; }

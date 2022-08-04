@@ -37,40 +37,36 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet("{uid}")]
-    public IActionResult Get(Guid uid)
+    public IActionResult Get(long uid)
     {
-        if (uid.Equals(Guid.Empty))
-        {
-            resp.Code = Code.ParametereError;
-        }
-        else
-        {
-            resp.Data = accountRepo.Get(uid);
-            resp.Code = accountRepo.RespCode;
-        }
-
+        resp.Data = accountRepo.Get(uid);
+        resp.Code = accountRepo.RespCode;
         return Ok(resp);
     }
 
     [HttpPost]
     public IActionResult Post([FromForm] AccountPostDto data)
     {
-        Guid uid = Guid.NewGuid();
-        Account player = data.ToPlayer(uid);
-        Device device = data.ToDevice(uid);
-
-        if (accountRepo.Insert(player, device))
+        lock (CacheData.UserLocker)
         {
-            resp.Data = new { UID = uid };
+            long sn = CacheData.UserSN;
+            Account player = data.ToPlayer(sn);
+            Device device = data.ToDevice(sn);
+
+            if (accountRepo.Insert(player, device))
+            {
+                resp.Data = new { UID = sn };
+                accountRepo.UserSnIncrement();
+            }
+            resp.Code = accountRepo.RespCode;
+            return Ok(resp);
         }
-        resp.Code = accountRepo.RespCode;
-        return Ok(resp);
     }
 
     [HttpPatch("{uid}")]
-    public IActionResult Patch(Guid uid, [FromForm] AccountUpdateDto data)
+    public IActionResult Patch(long uid, [FromForm] AccountUpdateDto data)
     {
-        if (!ModelState.IsValid || uid.Equals(Guid.Empty))
+        if (!ModelState.IsValid)
         {
             resp.Code = Code.ParametereError;
             return Ok(resp); ;

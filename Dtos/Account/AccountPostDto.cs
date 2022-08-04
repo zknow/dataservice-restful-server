@@ -37,7 +37,7 @@ public class AccountPostDto
     [Required]
     public DateTime LoginTime { get; set; }
 
-    public Models.Account ToPlayer(Guid uid)
+    public Models.Account ToPlayer(long uid)
     {
         return new Models.Account
         {
@@ -50,7 +50,7 @@ public class AccountPostDto
         };
     }
 
-    public Device ToDevice(Guid uid)
+    public Device ToDevice(long uid)
     {
         return new Device
         {

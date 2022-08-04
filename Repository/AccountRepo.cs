@@ -6,14 +6,34 @@ using HttpDataServer.Dtos.Account;
 using HttpDataServer.Models;
 using LinqToDB;
 using Serilog;
+using StackExchange.Redis;
 
 namespace HttpDataServer.Repository;
 
 public class AccountRepo
 {
     public MsSqlEngine db => Server.DBManager.Sql;
+    public IDatabase cache => Server.DBManager.Redis.DB;
 
     public int RespCode { get; set; } = Code.Success;
+
+    public AccountRepo()
+    {
+        if (CacheData.UserSN == -1)
+        {
+            CacheData.UserSN = (long)cache.HashGet("UserData", "SN");
+            // sn == 0 代表Redis沒初始化SN過，設定為１開始
+            if (CacheData.UserSN == 0)
+            {
+                UserSnIncrement();
+            }
+        }
+    }
+
+    public void UserSnIncrement()
+    {
+        CacheData.UserSN = cache.HashIncrement("UserData", "SN");
+    }
 
     public IQueryable<Account> GetAll()
     {
@@ -29,11 +49,11 @@ public class AccountRepo
         }
     }
 
-    public Account Get(Guid uid)
+    public Account Get(long uid)
     {
         try
         {
-            var account = db.Accounts.FirstOrDefault();
+            var account = db.Accounts.FirstOrDefault(x => x.UID == uid);
             if (account == null)
             {
                 RespCode = Code.AccountNotFount;
@@ -74,7 +94,7 @@ public class AccountRepo
         }
     }
 
-    public bool Update(Guid uid, AccountUpdateDto updateData)
+    public bool Update(long uid, AccountUpdateDto updateData)
     {
         try
         {
@@ -108,7 +128,7 @@ public class AccountRepo
     }
 
 
-    public bool UpdatePassword(Guid uid, string password)
+    public bool UpdatePassword(long uid, string password)
     {
         try
         {
@@ -129,7 +149,7 @@ public class AccountRepo
         }
     }
 
-    public bool UpdateNickName(Guid uid, string nickName)
+    public bool UpdateNickName(long uid, string nickName)
     {
         try
         {
@@ -150,7 +170,7 @@ public class AccountRepo
         }
     }
 
-    public bool UpdateContact(Guid uid, string phone, string email)
+    public bool UpdateContact(long uid, string phone, string email)
     {
         try
         {
@@ -188,7 +208,7 @@ public class AccountRepo
         }
     }
 
-    public bool UpdateContactVarified(Guid uid, bool? isPhoneVarified, bool? isEmailVarified)
+    public bool UpdateContactVarified(long uid, bool? isPhoneVarified, bool? isEmailVarified)
     {
         try
         {

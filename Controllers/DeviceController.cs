@@ -42,10 +42,9 @@ public class DeviceController : ControllerBase
     [HttpPatch("{firebaseCode}")]
     public IActionResult Patch(string firebaseCode, [FromForm] DateTime loginTime)
     {
-        if (firebaseCode.Equals(Guid.Empty))
+        if (string.IsNullOrWhiteSpace(firebaseCode))
         {
             resp.Code = Code.ParametereError;
-            resp.Message = $"{Code.Message(resp.Code)}:'{nameof(firebaseCode)}'";
             return Ok(resp);
         }
 

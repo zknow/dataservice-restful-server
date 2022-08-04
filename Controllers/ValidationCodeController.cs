@@ -1,4 +1,3 @@
-using System;
 using HttpDataServer.Core;
 using HttpDataServer.Dtos.RespDto;
 using HttpDataServer.Repository;
@@ -27,7 +26,7 @@ public class ValidationCodeController : ControllerBase
     }
 
     [HttpGet("{uid}")]
-    public IActionResult Get(Guid uid, [FromQuery] string type)
+    public IActionResult Get(long uid, [FromQuery] string type)
     {
         string handleType = type?.ToLower();
         if (!handleTypes.Contains(handleType))

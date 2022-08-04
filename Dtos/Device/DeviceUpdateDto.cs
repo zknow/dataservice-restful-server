@@ -5,7 +5,7 @@ namespace HttpDataServer.Dtos.Account;
 
 public class DeviceUpdateDto
 {
-    public Guid UID { get; set; }
+    public long UID { get; set; }
 
     public string DeviceName { get; set; }
 
