@@ -1,10 +1,10 @@
 using System.Threading;
-using HttpDataServer.Database;
+using DataServer.Database;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Tools;
 
-namespace HttpDataServer;
+namespace DataServer;
 
 public class Server
 {

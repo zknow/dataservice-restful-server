@@ -1,10 +1,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using HttpDataServer.Repository;
+using DataServer.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
-namespace HttpDataServer;
+namespace DataServer;
 
 public class Startup
 {
@@ -27,7 +28,8 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddControllers();
-        services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "HttpDataServer", Version = "v1" }); });
+        services.AddControllers(option => option.Filters.Add<ExceptionFilter>());
+        services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "DataServer", Version = "v1" }); });
         services.AddControllers().ConfigureApiBehaviorOptions(opt => { opt.SuppressMapClientErrors = true; });
         services.AddControllers().AddNewtonsoftJson();
 
@@ -60,7 +62,7 @@ public class Startup
         {
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HttpDataServer v1"));
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DataServer v1"));
         }
 
         // app.UseHttpsRedirection();
@@ -78,7 +80,7 @@ public class Startup
         public Task StartAsync(CancellationToken cancellationToken)
         {
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            Log.Information($"Environment : {env}");
+            Log.Information($"Current Environment : {env}");
             return Task.CompletedTask;
         }
 
@@ -95,6 +97,14 @@ public class Startup
             }
 
             return Task.CompletedTask;
+        }
+    }
+
+    public class ExceptionFilter : IExceptionFilter
+    {
+        public void OnException(ExceptionContext context)
+        {
+            Log.Fatal($"ExceptionFilter : {context.Exception}");
         }
     }
 }

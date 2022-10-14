@@ -1,6 +1,6 @@
 using StackExchange.Redis;
 
-namespace HttpDataServer.Database;
+namespace DataServer.Database;
 
 public class RedisEngine
 {

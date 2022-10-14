@@ -1,15 +1,15 @@
-using HttpDataServer.Core;
-using HttpDataServer.Dtos.RespDto;
-using HttpDataServer.Repository;
+using DataServer.Core;
+using DataServer.Repository;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using HttpDataServer.Dtos.ValidationCode;
+using DataServer.Dtos.Request.User;
+using DataServer.Dtos.Response.User;
 using StackExchange.Redis;
 
-namespace HttpDataServer.Controllers;
+namespace DataServer.Controllers;
 
 [ApiController, Route("[controller]")]
-[Consumes("application/x-www-form-urlencoded"), Produces("application/json")]
+[Consumes("application/json"), Produces("application/json")]
 [ApiConventionType(typeof(DefaultApiConventions))]
 public class ValidationCodeController : ControllerBase
 {
@@ -18,7 +18,7 @@ public class ValidationCodeController : ControllerBase
     private readonly HashSet<string> handleTypes = new() { "phone", "email", "password" };
     private readonly ValidationCodeRepo cache;
 
-    private RespDto resp = new RespDto();
+    private ValidationCodeSelectResponse resp = new ValidationCodeSelectResponse();
 
     public ValidationCodeController(ValidationCodeRepo repo)
     {
@@ -26,51 +26,49 @@ public class ValidationCodeController : ControllerBase
     }
 
     [HttpGet("{uid}")]
-    public IActionResult Get(long uid, [FromQuery] string type)
+    public IActionResult Get(long uid, [FromBody] string type)
     {
         string handleType = type?.ToLower();
         if (!handleTypes.Contains(handleType))
         {
-            resp.Code = Code.ParametereError;
+            resp.ErrorCode = ErrorCode.ParametereError;
             return Ok(resp);
         }
 
         string key = $"{keyPrefix}:{handleType}:{uid}";
         if (!cache.CheckExists(key))
         {
-            resp.Code = Code.VerificationCodeNotFound;
+            resp.ErrorCode = ErrorCode.VerificationCodeNotFound;
             return Ok(resp);
         }
 
         if (cache.Get(key, out HashEntry data))
         {
-            resp.Data = new ValidationCodeRespDto
-            {
-                Code = data.Name,
-                ExtraValue = data.Value,
-            };
+            resp.ErrorCode = ErrorCode.Success;
+            resp.ValidationCode = (int)data.Name;
+            resp.ExtraValue = data.Value;
         }
         else
         {
-            resp.Code = cache.RespCode;
+            resp.ErrorCode = cache.ErrCode;
         }
 
         return Ok(resp);
     }
 
     [HttpPost]
-    public IActionResult Post([FromForm] ValidationCodePostDto data)
+    public IActionResult Post([FromBody] ValidationCodeInsertRequest data)
     {
         string typeStr = data.Type.ToLower();
         if (handleTypes.Contains(typeStr))
         {
             string key = $"{keyPrefix}:{typeStr}:{data.UID}";
             cache.Set(key, data.Code, data.ExtraData, data.ExpireSecond);
-            resp.Code = cache.RespCode;
+            resp.ErrorCode = cache.ErrCode;
         }
         else
         {
-            resp.Code = Code.ParametereError;
+            resp.ErrorCode = ErrorCode.ParametereError;
         }
         return Ok(resp);
     }

@@ -1,9 +1,9 @@
 using System;
-using HttpDataServer.Models;
+using DataServer.Dtos.Sql;
 
-namespace HttpDataServer.Dtos.Account;
+namespace DataServer.Dtos.Request.User;
 
-public class DeviceUpdateDto
+public class DeviceUpdateRequest
 {
     public long UID { get; set; }
 

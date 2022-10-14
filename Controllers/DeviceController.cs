@@ -1,19 +1,18 @@
 using System;
-using HttpDataServer.Core;
-using HttpDataServer.Dtos.Account;
-using HttpDataServer.Dtos.RespDto;
-using HttpDataServer.Repository;
+using DataServer.Core;
+using DataServer.Dtos.Request.User;
+using DataServer.Dtos.Response.User;
+using DataServer.Repository;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HttpDataServer.Controllers;
+namespace DataServer.Controllers;
 
 [ApiController, Route("[controller]")]
-[Consumes("application/x-www-form-urlencoded"), Produces("application/json")]
+[Consumes("application/json"), Produces("application/json")]
 [ApiConventionType(typeof(DefaultApiConventions))]
 public class DeviceController : ControllerBase
 {
     private readonly DeviceRepo deviceRepo;
-    private RespDto resp = new RespDto();
 
     public DeviceController(DeviceRepo deviceRepo)
     {
@@ -21,39 +20,48 @@ public class DeviceController : ControllerBase
     }
 
     [HttpPut("{firebaseCode}")]
-    public IActionResult Put(string firebaseCode, [FromForm] DeviceUpdateDto device)
+    public IActionResult Put(string firebaseCode, [FromBody] DeviceUpdateRequest device)
     {
+        var resp = new DeviceUpdateResponse();
         if (string.IsNullOrWhiteSpace(firebaseCode))
         {
-            resp.Code = Code.ParametereError;
             return Ok(resp);
         }
 
         bool success = deviceRepo.Update(firebaseCode, device);
         if (success)
         {
-            resp.Data = new { firebaseCode = firebaseCode };
+            resp.ErrorCode = ErrorCode.Success;
+            resp.FirebaseCode = firebaseCode;
+        }
+        else
+        {
+            resp.ErrorCode = deviceRepo.ErrCode;
         }
 
-        resp.Code = deviceRepo.RespCode;
         return Ok(resp);
     }
 
     [HttpPatch("{firebaseCode}")]
-    public IActionResult Patch(string firebaseCode, [FromForm] DateTime loginTime)
+    public IActionResult Patch(string firebaseCode, [FromBody] DateTime loginTime)
     {
+        var resp = new DeviceLoginTimeUpdateResponse();
         if (string.IsNullOrWhiteSpace(firebaseCode))
         {
-            resp.Code = Code.ParametereError;
             return Ok(resp);
         }
 
         bool success = deviceRepo.UpdateTime(firebaseCode, loginTime);
         if (success)
         {
-            resp.Data = new { FirebaseCode = firebaseCode };
+            resp.ErrorCode = ErrorCode.Success;
+            resp.FirebaseCode = firebaseCode;
         }
-        resp.Code = deviceRepo.RespCode;
+        else
+        {
+            resp.ErrorCode = deviceRepo.ErrCode;
+        }
+
         return Ok(resp);
     }
 }

@@ -1,4 +1,4 @@
-namespace HttpDataServer.Core;
+namespace DataServer.Core;
 
 public enum DeviceType
 {

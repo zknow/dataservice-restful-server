@@ -1,38 +1,21 @@
 using System;
 using System.Linq;
-using HttpDataServer.Core;
-using HttpDataServer.Database;
-using HttpDataServer.Dtos.Account;
-using HttpDataServer.Models;
+using DataServer.Core;
+using DataServer.Database;
+using DataServer.Dtos.Request.User;
+using DataServer.Dtos.Sql;
 using LinqToDB;
 using Serilog;
 using StackExchange.Redis;
 
-namespace HttpDataServer.Repository;
+namespace DataServer.Repository;
 
 public class AccountRepo
 {
     public MsSqlEngine db => Server.DBManager.Sql;
     public IDatabase cache => Server.DBManager.Redis.DB;
 
-    public int RespCode { get; set; } = Code.Success;
-
-    public AccountRepo()
-    {
-        try
-        {
-            if (CacheData.UserSN == -1)
-            {
-                CacheData.UserSN = (long)cache.HashGet("UserData", "SN");
-            }
-        }
-        catch (System.Exception ex)
-        {
-            CacheData.UserSN = -1;
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
-        }
-    }
+    public ErrorCode ErrCode { get; set; } = ErrorCode.Success;
 
     public IQueryable<Account> GetAll()
     {
@@ -42,8 +25,8 @@ public class AccountRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Core.Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
             return null;
         }
     }
@@ -55,13 +38,13 @@ public class AccountRepo
             var account = db.Accounts.FirstOrDefault(x => x.UID == uid);
             if (account == null)
             {
-                RespCode = Code.AccountNotFount;
+                ErrCode = ErrorCode.AccountNotFount;
             }
             return account;
         }
         catch (System.Exception ex)
         {
-            Log.Error(ex, Code.Message(Code.DatabaseError));
+            Log.Error(ex, ErrorCode.DatabaseError.GetString());
             return null;
         }
     }
@@ -70,45 +53,36 @@ public class AccountRepo
     {
         try
         {
-            if (CacheData.UserSN == -1)
-            {
-                RespCode = Code.AccountCreateFailed;
-                return false;
-            }
-
             using (var tran = db.BeginTransaction())
             {
                 if (db.Insert(player) > 0)
                 {
                     if (db.Insert(device) > 0)
                     {
-                        if (UserSnIncrement())
-                        {
-                            tran.Commit();
-                            return true;
-                        }
+                        tran.Commit();
+                        return true;
                     }
                 }
-                RespCode = Code.AccountCreateFailed;
+                ErrCode = ErrorCode.AccountCreateFailed;
                 return false;
             }
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
             return false;
         }
     }
 
-    public bool Update(long uid, AccountUpdateDto updateData)
+    public bool Update(long uid, AccountUpdateRequest updateData)
     {
         try
         {
             var selector = db.Accounts.Where(p => p.UID == uid).FirstOrDefault();
             if (selector == null)
             {
-                RespCode = Code.AccountNotFount;
+                ErrCode = ErrorCode.AccountNotFount;
                 return false;
             }
 
@@ -121,14 +95,14 @@ public class AccountRepo
 
             if (db.Update(selector) <= 0)
             {
-                RespCode = Code.AccountUpdateFailed;
+                ErrCode = ErrorCode.AccountUpdateFailed;
                 return false;
             }
             return true;
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
+            ErrCode = ErrorCode.DatabaseError;
             Console.WriteLine(ex.Message);
             return false;
         }
@@ -141,7 +115,7 @@ public class AccountRepo
             var selector = db.Accounts.Where(p => p.UID == uid);
             if (selector.Count() == 0)
             {
-                RespCode = Core.Code.AccountNotFount;
+                ErrCode = ErrorCode.AccountNotFount;
                 return false;
             }
             var updatable = selector.Set(p => p.Password, password);
@@ -149,8 +123,8 @@ public class AccountRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
             return false;
         }
     }
@@ -162,7 +136,7 @@ public class AccountRepo
             var selector = db.Accounts.Where(p => p.UID == uid);
             if (selector.Count() == 0)
             {
-                RespCode = Code.AccountNotFount;
+                ErrCode = ErrorCode.AccountNotFount;
                 return false;
             }
             var updatable = selector.Set(p => p.NickName, nickName);
@@ -170,8 +144,8 @@ public class AccountRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
             return false;
         }
     }
@@ -183,7 +157,7 @@ public class AccountRepo
             var selector = db.Accounts.Where(p => p.UID == uid);
             if (selector.Count() == 0)
             {
-                RespCode = Core.Code.AccountNotFount;
+                ErrCode = ErrorCode.AccountNotFount;
                 return false;
             }
             if (!string.IsNullOrWhiteSpace(phone))
@@ -191,7 +165,7 @@ public class AccountRepo
                 var updatable = selector.Set(p => p.Phone, phone);
                 if (updatable.Update() <= 0)
                 {
-                    RespCode = Core.Code.AccountUpdateFailed;
+                    ErrCode = ErrorCode.AccountUpdateFailed;
                     return false;
                 }
             }
@@ -200,7 +174,7 @@ public class AccountRepo
                 var updatable = selector.Set(p => p.Email, email);
                 if (updatable.Update() <= 0)
                 {
-                    RespCode = Code.AccountUpdateFailed;
+                    ErrCode = ErrorCode.AccountUpdateFailed;
                     return false;
                 }
             }
@@ -208,8 +182,8 @@ public class AccountRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
             return false;
         }
     }
@@ -221,7 +195,7 @@ public class AccountRepo
             var selector = db.Accounts.Where(p => p.UID == uid);
             if (selector.Count() == 0)
             {
-                RespCode = Core.Code.AccountNotFount;
+                ErrCode = ErrorCode.AccountNotFount;
                 return false;
             }
             if (isPhoneVarified != null)
@@ -229,7 +203,7 @@ public class AccountRepo
                 var updatable = selector.Set(p => p.IsPhoneVerified, isPhoneVarified);
                 if (updatable.Update() <= 0)
                 {
-                    RespCode = Code.AccountUpdateFailed;
+                    ErrCode = ErrorCode.AccountUpdateFailed;
                     return false;
                 }
             }
@@ -238,7 +212,7 @@ public class AccountRepo
                 var updatable = selector.Set(p => p.IsEmailVerified, isEmailVarified);
                 if (updatable.Update() <= 0)
                 {
-                    RespCode = Code.AccountUpdateFailed;
+                    ErrCode = ErrorCode.AccountUpdateFailed;
                     return false;
                 }
             }
@@ -246,23 +220,24 @@ public class AccountRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
             return false;
         }
     }
 
-    public bool UserSnIncrement()
+    public bool TryGetUserSN(out long sn)
     {
         try
         {
-            CacheData.UserSN = cache.HashIncrement("UserData", "SN");
+            sn = cache.HashIncrement("UserData", "SN");
             return true;
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            sn = -1;
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
             return false;
         }
     }

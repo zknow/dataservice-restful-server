@@ -1,9 +1,9 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace HttpDataServer.Dtos.ValidationCode;
+namespace DataServer.Dtos.Request.User;
 
-public class ValidationCodePostDto
+public class ValidationCodeInsertRequest
 {
     [Required]
     public Guid UID { get; set; }

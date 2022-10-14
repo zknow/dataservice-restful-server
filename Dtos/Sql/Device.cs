@@ -1,7 +1,7 @@
 using System;
 using LinqToDB.Mapping;
 
-namespace HttpDataServer.Models;
+namespace DataServer.Dtos.Sql;
 
 [Table(Name = nameof(Device))]
 public class Device

@@ -1,11 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using HttpDataServer.Models;
+using DataServer.Dtos.Sql;
 
 //https://ithelp.ithome.com.tw/articles/10194337
-namespace HttpDataServer.Dtos.Account;
+namespace DataServer.Dtos.Request.User;
 
-public class AccountPostDto
+public class AccountInsertRequest
 {
     [Required]
     public string AccountName { get; set; }
@@ -37,9 +37,9 @@ public class AccountPostDto
     [Required]
     public DateTime LoginTime { get; set; }
 
-    public Models.Account ToPlayer(long uid)
+    public Account ToPlayer(long uid)
     {
-        return new Models.Account
+        return new Account
         {
             UID = uid,
             AccountName = this.AccountName,

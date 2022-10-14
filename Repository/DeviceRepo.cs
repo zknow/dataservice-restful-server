@@ -1,19 +1,19 @@
 using System;
 using System.Linq;
-using HttpDataServer.Core;
-using HttpDataServer.Database;
-using HttpDataServer.Dtos.Account;
+using DataServer.Core;
+using DataServer.Database;
+using DataServer.Dtos.Request.User;
 using LinqToDB;
 using Serilog;
 
-namespace HttpDataServer.Repository;
+namespace DataServer.Repository;
 
 public class DeviceRepo
 {
     public MsSqlEngine db => Server.DBManager.Sql;
-    public int RespCode { get; set; } = Code.Success;
+    public ErrorCode ErrCode { get; set; } = ErrorCode.Success;
 
-    public bool Update(string firebaseCode, DeviceUpdateDto deviceInfo)
+    public bool Update(string firebaseCode, DeviceUpdateRequest deviceInfo)
     {
         try
         {
@@ -32,7 +32,7 @@ public class DeviceRepo
 
             if (!success)
             {
-                RespCode = Code.DeviceUpdateFailed;
+                ErrCode = ErrorCode.DeviceUpdateFailed;
                 return false;
             }
 
@@ -40,8 +40,8 @@ public class DeviceRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
             return false;
         }
     }
@@ -53,7 +53,7 @@ public class DeviceRepo
             var selector = db.Devices.Where(p => p.FirebaseCode == firebaseCode);
             if (selector.Count() == 0)
             {
-                RespCode = Code.DeviceNotFound;
+                ErrCode = ErrorCode.DeviceNotFound;
                 return false;
             }
 
@@ -61,14 +61,14 @@ public class DeviceRepo
             var success = updatable.Update() > 0;
             if (!success)
             {
-                RespCode = Code.DeviceUpdateFailed;
+                ErrCode = ErrorCode.DeviceUpdateFailed;
             }
             return success;
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
             return false;
         }
     }

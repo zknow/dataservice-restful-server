@@ -1,16 +1,16 @@
 using System;
 using System.Linq;
-using HttpDataServer.Core;
+using DataServer.Core;
 using Serilog;
 using StackExchange.Redis;
 
-namespace HttpDataServer.Repository;
+namespace DataServer.Repository;
 
 public class ValidationCodeRepo
 {
     public IDatabase db => Server.DBManager.Redis.DB;
 
-    public int RespCode { get; set; } = Code.Success;
+    public ErrorCode ErrCode { get; set; } = ErrorCode.Success;
 
     public readonly double defaultExpireMinutes = 10;
 
@@ -29,8 +29,8 @@ public class ValidationCodeRepo
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
         }
         return false;
     }
@@ -61,15 +61,15 @@ public class ValidationCodeRepo
 
             if (!success)
             {
-                RespCode = Core.Code.VerificationCodeSetError;
+                ErrCode = ErrorCode.VerificationCodeSetError;
             }
 
             return success;
         }
         catch (System.Exception ex)
         {
-            RespCode = Code.DatabaseError;
-            Log.Error(ex, Code.Message(RespCode));
+            ErrCode = ErrorCode.DatabaseError;
+            Log.Error(ex, ErrCode.GetString());
             return false;
         }
     }

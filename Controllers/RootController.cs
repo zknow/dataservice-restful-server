@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace HttpDataServer.Controllers;
+namespace DataServer.Controllers;
 
 [ApiController]
 [Route("/")]

@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace HttpDataServer.Dtos.Account;
+namespace DataServer.Dtos.Request.User;
 
-public class AccountUpdateDto
+public class AccountUpdateRequest
 {
     public string NickName { get; set; }
 
