@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using DataServer.Database;
 using DataServer.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,16 +14,38 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Tools;
 
 namespace DataServer;
 
 public class Startup
 {
+    public static Logrotator logrotator;
+    public static DBManager dbManager;
+
     public IConfiguration Configuration { get; }
 
     public Startup(IConfiguration configuration)
     {
-        Configuration = configuration;
+        var builder = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json")
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true);
+        Configuration = builder.Build();
+
+        InitLogger();
+
+        Configuration.GetSection("Database").Bind(DBManager.DatabaseConfig);
+        DBManager.Instance = new DBManager();
+    }
+
+    private void InitLogger()
+    {
+        Log.Logger = new LoggerConfiguration()
+                        .ReadFrom.Configuration(Configuration)
+                        .CreateLogger();
+
+        logrotator = new Logrotator();
     }
 
     // This method gets called by the runtime. Use this method to add services to the container.
@@ -88,7 +112,11 @@ public class Startup
         {
             try
             {
-                Server.Dispose();
+                dbManager.Dispose();
+                logrotator.Dispose();
+                dbManager = null;
+                logrotator = null;
+
                 Log.Information("Server Dispose Success!");
             }
             catch (System.Exception ex)

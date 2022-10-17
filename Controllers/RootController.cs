@@ -4,6 +4,7 @@ namespace DataServer.Controllers;
 
 [ApiController]
 [Route("/")]
+[Consumes("application/json"), Produces("application/json")]
 public class RootController : ControllerBase
 {
     [HttpGet]

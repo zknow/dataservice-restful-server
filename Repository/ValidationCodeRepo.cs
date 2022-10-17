@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using DataServer.Core;
+using DataServer.Database;
 using Serilog;
 using StackExchange.Redis;
 
@@ -8,7 +9,7 @@ namespace DataServer.Repository;
 
 public class ValidationCodeRepo
 {
-    public IDatabase db => Server.DBManager.Redis.DB;
+    public IDatabase db => DBManager.Instance.Redis.DB;
 
     public ErrorCode ErrCode { get; set; } = ErrorCode.Success;
 

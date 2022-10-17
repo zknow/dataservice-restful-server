@@ -12,8 +12,8 @@ namespace DataServer.Repository;
 
 public class AccountRepo
 {
-    public MsSqlEngine db => Server.DBManager.Sql;
-    public IDatabase cache => Server.DBManager.Redis.DB;
+    public MsSqlEngine db => DBManager.Instance.Sql;
+    public IDatabase cache => DBManager.Instance.Redis.DB;
 
     public ErrorCode ErrCode { get; set; } = ErrorCode.Success;
 

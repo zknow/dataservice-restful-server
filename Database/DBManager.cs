@@ -6,6 +6,9 @@ namespace DataServer.Database;
 
 public class DBManager
 {
+    public static DBManager Instance;
+    public static DatabaseConfigs DatabaseConfig = new();
+
     public MsSqlEngine Sql;
     public RedisEngine Redis;
 
@@ -19,7 +22,7 @@ public class DBManager
     {
         try
         {
-            Sql = new MsSqlEngine(Config.GetMsSqlConnectionString());
+            Sql = new MsSqlEngine(DatabaseConfig.MssqlConnectionStrings);
             if (Sql.Connection.State != ConnectionState.Open)
             {
                 Log.Fatal($"SQL 連接失敗, State : {(System.Data.ConnectionState)Sql.Connection.State}");
@@ -38,8 +41,7 @@ public class DBManager
     {
         try
         {
-            Redis = new RedisEngine(Config.GetRedisConnectionString(),
-              int.Parse(Config.GetValueFromKey("ConnectionStrings:RedisDB")));
+            Redis = new RedisEngine(DatabaseConfig.RedisConnectionStrings, DatabaseConfig.RedisDB);
             Redis.DB.Ping();
         }
         catch (Exception ex)

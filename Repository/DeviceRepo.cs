@@ -10,7 +10,7 @@ namespace DataServer.Repository;
 
 public class DeviceRepo
 {
-    public MsSqlEngine db => Server.DBManager.Sql;
+    public MsSqlEngine db => DBManager.Instance.Sql;
     public ErrorCode ErrCode { get; set; } = ErrorCode.Success;
 
     public bool Update(string firebaseCode, DeviceUpdateRequest deviceInfo)
