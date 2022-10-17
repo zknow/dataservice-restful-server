@@ -26,7 +26,7 @@ public class ValidationCodeController : ControllerBase
     }
 
     [HttpGet("{uid}")]
-    public IActionResult Get(long uid, [FromBody] string type)
+    public IActionResult Get(long uid, [FromQuery] string type)
     {
         string handleType = type?.ToLower();
         if (!handleTypes.Contains(handleType))

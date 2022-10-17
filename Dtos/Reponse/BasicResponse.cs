@@ -6,5 +6,5 @@ public class BasicResponse
 {
     public ErrorCode ErrorCode { get; set; } = ErrorCode.ParametereError;
 
-    public string ErrorMessage => ErrorCode.GetString();
+    public string Message => ErrorCode.GetString();
 }
