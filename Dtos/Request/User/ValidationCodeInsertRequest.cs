@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataServer.Dtos.Request.User;
@@ -6,7 +5,7 @@ namespace DataServer.Dtos.Request.User;
 public class ValidationCodeInsertRequest
 {
     [Required]
-    public Guid UID { get; set; }
+    public long UID { get; set; }
 
     [Required]
     public string Type { get; set; }
