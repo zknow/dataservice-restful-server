@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace DataServer;
 
+// Protocol Document: https://hackmd.io/DcFF2LRpRumTNxLmSPa2tw
 public class Server
 {
     public static void Main(string[] args)
