@@ -37,7 +37,7 @@ public class AccountInsertRequest
     [Required]
     public DateTime LoginTime { get; set; }
 
-    public Account ToPlayer(long uid)
+    public Account ToAccount(long uid)
     {
         return new Account
         {

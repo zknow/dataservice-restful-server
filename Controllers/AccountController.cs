@@ -36,7 +36,7 @@ public class AccountController : ControllerBase
         {
             if (accountRepo.TryGetUserSN(out long sn))
             {
-                Account player = data.ToPlayer(sn);
+                Account player = data.ToAccount(sn);
                 Device device = data.ToDevice(sn);
                 if (accountRepo.Insert(player, device))
                 {
