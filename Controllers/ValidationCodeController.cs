@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using DataServer.Dtos.Request.User;
 using DataServer.Dtos.Response.User;
 using StackExchange.Redis;
+using Microsoft.AspNetCore.Http;
 
 namespace DataServer.Controllers;
 
@@ -18,16 +19,16 @@ public class ValidationCodeController : ControllerBase
     private readonly HashSet<string> handleTypes = new() { "phone", "email", "password" };
     private readonly ValidationCodeRepo cache;
 
-    private ValidationCodeSelectResponse resp = new ValidationCodeSelectResponse();
-
     public ValidationCodeController(ValidationCodeRepo repo)
     {
         this.cache = repo;
     }
 
     [HttpGet("{uid}")]
+    [ProducesResponseType(typeof(ValidationCodeSelectResponse), StatusCodes.Status200OK)]
     public IActionResult Get(long uid, [FromQuery] string type)
     {
+        var resp = new ValidationCodeSelectResponse();
         string handleType = type?.ToLower();
         if (!handleTypes.Contains(handleType))
         {
@@ -57,8 +58,10 @@ public class ValidationCodeController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(ValidationCodeInsertResponse), StatusCodes.Status200OK)]
     public IActionResult Post([FromBody] ValidationCodeInsertRequest data)
     {
+        var resp = new ValidationCodeInsertResponse();
         string typeStr = data.Type.ToLower();
         if (handleTypes.Contains(typeStr))
         {

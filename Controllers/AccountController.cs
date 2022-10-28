@@ -2,6 +2,7 @@ using DataServer.Dtos.Request.User;
 using DataServer.Dtos.Response.User;
 using DataServer.Dtos.Sql;
 using DataServer.Repository;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataServer.Controllers;
@@ -20,6 +21,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet("{uid}")]
+    [ProducesResponseType(typeof(AccountSelectResponse), StatusCodes.Status200OK)]
     public IActionResult Get(long uid)
     {
         var resp = new AccountSelectResponse();
@@ -29,6 +31,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(AccountInsertResponse), StatusCodes.Status200OK)]
     public IActionResult Post([FromBody] AccountInsertRequest data)
     {
         var resp = new AccountInsertResponse();
@@ -49,6 +52,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPatch("{uid}")]
+    [ProducesResponseType(typeof(AccountUpdateResponse), StatusCodes.Status200OK)]
     public IActionResult Patch(long uid, [FromBody] AccountUpdateRequest data)
     {
         var resp = new AccountUpdateResponse();

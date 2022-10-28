@@ -3,6 +3,7 @@ using DataServer.Core;
 using DataServer.Dtos.Request.User;
 using DataServer.Dtos.Response.User;
 using DataServer.Repository;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataServer.Controllers;
@@ -20,6 +21,7 @@ public class DeviceController : ControllerBase
     }
 
     [HttpPut("{firebaseCode}")]
+    [ProducesResponseType(typeof(DeviceUpdateResponse), StatusCodes.Status200OK)]
     public IActionResult Put(string firebaseCode, [FromBody] DeviceUpdateRequest device)
     {
         var resp = new DeviceUpdateResponse();
@@ -43,6 +45,7 @@ public class DeviceController : ControllerBase
     }
 
     [HttpPatch("{firebaseCode}")]
+    [ProducesResponseType(typeof(DeviceLoginTimeUpdateResponse), StatusCodes.Status200OK)]
     public IActionResult Patch(string firebaseCode, [FromBody] DateTime loginTime)
     {
         var resp = new DeviceLoginTimeUpdateResponse();
