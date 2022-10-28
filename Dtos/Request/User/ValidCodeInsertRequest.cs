@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DataServer.Dtos.Request.User;
 
-public class ValidationCodeInsertRequest
+public class ValidCodeInsertRequest
 {
     [Required]
     public long UID { get; set; }

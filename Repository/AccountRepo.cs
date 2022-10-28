@@ -49,13 +49,13 @@ public class AccountRepo
         }
     }
 
-    public bool Insert(Account player, Device device)
+    public bool Insert(Account account, Device device)
     {
         try
         {
             using (var tran = db.BeginTransaction())
             {
-                if (db.Insert(player) > 0)
+                if (db.Insert(account) > 0)
                 {
                     if (db.Insert(device) > 0)
                     {

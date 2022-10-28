@@ -1,6 +1,6 @@
 namespace DataServer.Dtos.Response.User;
 
-public class ValidationCodeSelectResponse : BasicResponse
+public class ValidCodeSelectResponse : BasicResponse
 {
     public int ValidationCode { get; set; }
 

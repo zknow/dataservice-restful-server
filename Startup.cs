@@ -76,7 +76,7 @@ public class Startup
     {
         services.AddScoped<AccountRepo>();
         services.AddScoped<DeviceRepo>();
-        services.AddScoped<ValidationCodeRepo>();
+        services.AddScoped<ValidCodeRepo>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -7,7 +7,7 @@ using StackExchange.Redis;
 
 namespace DataServer.Repository;
 
-public class ValidationCodeRepo
+public class ValidCodeRepo
 {
     public IDatabase db => DBManager.Instance.Redis.DB;
 

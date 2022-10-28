@@ -12,23 +12,23 @@ namespace DataServer.Controllers;
 [ApiController, Route("[controller]")]
 [Consumes("application/json"), Produces("application/json")]
 [ApiConventionType(typeof(DefaultApiConventions))]
-public class ValidationCodeController : ControllerBase
+public class ValidCodeController : ControllerBase
 {
-    private const string keyPrefix = "ValidationCode";
+    private const string keyPrefix = "ValidCode";
 
     private readonly HashSet<string> handleTypes = new() { "phone", "email", "password" };
-    private readonly ValidationCodeRepo cache;
+    private readonly ValidCodeRepo repo;
 
-    public ValidationCodeController(ValidationCodeRepo repo)
+    public ValidCodeController(ValidCodeRepo repo)
     {
-        this.cache = repo;
+        this.repo = repo;
     }
 
     [HttpGet("{uid}")]
-    [ProducesResponseType(typeof(ValidationCodeSelectResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidCodeSelectResponse), StatusCodes.Status200OK)]
     public IActionResult Get(long uid, [FromQuery] string type)
     {
-        var resp = new ValidationCodeSelectResponse();
+        var resp = new ValidCodeSelectResponse();
         string handleType = type?.ToLower();
         if (!handleTypes.Contains(handleType))
         {
@@ -37,13 +37,13 @@ public class ValidationCodeController : ControllerBase
         }
 
         string key = $"{keyPrefix}:{handleType}:{uid}";
-        if (!cache.CheckExists(key))
+        if (!repo.CheckExists(key))
         {
             resp.ErrorCode = ErrorCode.VerificationCodeNotFound;
             return Ok(resp);
         }
 
-        if (cache.Get(key, out HashEntry data))
+        if (repo.Get(key, out HashEntry data))
         {
             resp.ErrorCode = ErrorCode.Success;
             resp.ValidationCode = (int)data.Name;
@@ -51,23 +51,23 @@ public class ValidationCodeController : ControllerBase
         }
         else
         {
-            resp.ErrorCode = cache.ErrCode;
+            resp.ErrorCode = repo.ErrCode;
         }
 
         return Ok(resp);
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(ValidationCodeInsertResponse), StatusCodes.Status200OK)]
-    public IActionResult Post([FromBody] ValidationCodeInsertRequest data)
+    [ProducesResponseType(typeof(ValidCodeInsertResponse), StatusCodes.Status200OK)]
+    public IActionResult Post([FromBody] ValidCodeInsertRequest data)
     {
-        var resp = new ValidationCodeInsertResponse();
+        var resp = new ValidCodeInsertResponse();
         string typeStr = data.Type.ToLower();
         if (handleTypes.Contains(typeStr))
         {
             string key = $"{keyPrefix}:{typeStr}:{data.UID}";
-            cache.Set(key, data.Code, data.ExtraData, data.ExpireSecond);
-            resp.ErrorCode = cache.ErrCode;
+            repo.Set(key, data.Code, data.ExtraData, data.ExpireSecond);
+            resp.ErrorCode = repo.ErrCode;
         }
         else
         {
