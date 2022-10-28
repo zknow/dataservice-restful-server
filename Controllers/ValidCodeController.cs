@@ -46,7 +46,7 @@ public class ValidCodeController : ControllerBase
         if (repo.Get(key, out HashEntry data))
         {
             resp.ErrorCode = ErrorCode.Success;
-            resp.ValidationCode = (int)data.Name;
+            resp.ValidationCode = data.Name;
             resp.ExtraValue = data.Value;
         }
         else
@@ -62,10 +62,10 @@ public class ValidCodeController : ControllerBase
     public IActionResult Post([FromBody] ValidCodeInsertRequest data)
     {
         var resp = new ValidCodeInsertResponse();
-        string typeStr = data.Type.ToLower();
-        if (handleTypes.Contains(typeStr))
+        string validCodeTpye = data.Type.ToLower();
+        if (handleTypes.Contains(validCodeTpye))
         {
-            string key = $"{keyPrefix}:{typeStr}:{data.UID}";
+            string key = $"{keyPrefix}:{validCodeTpye}:{data.UID}";
             repo.Set(key, data.Code, data.ExtraData, data.ExpireSecond);
             resp.ErrorCode = repo.ErrCode;
         }
