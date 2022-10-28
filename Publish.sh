@@ -1,3 +1,3 @@
 #!/bin/bash
 
-dotnet publish -r win-x64 -o ./publish-win --self-contained false
+dotnet publish -r win-x64 -o ./publish --self-contained false
